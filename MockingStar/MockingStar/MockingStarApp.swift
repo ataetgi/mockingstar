@@ -9,19 +9,16 @@ import CommonKit
 import CommonViewsKit
 import JSONEditor
 import MockingStarCore
-import Sparkle
 import SwiftUI
 import TipKit
 
 @main
 struct MockingStarApp: App {
-    private let updaterController: SPUStandardUpdaterController
 
     init() {
         try? Tips.configure([
             .datastoreLocation(.applicationDefault),
         ])
-        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     }
 
     var body: some Scene {
@@ -40,9 +37,6 @@ struct MockingStarApp: App {
         .commands {
             SidebarCommands()
             MenubarCommands()
-            CommandGroup(after: .appInfo) {
-                CheckForUpdatesView(updater: updaterController.updater)
-            }
         }
 
         Window("Mocking Star Playground", id: "quick-demo") {
