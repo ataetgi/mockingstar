@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A8EE3BE2BE4D97A00F9B893 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */; };
 		5514564E2B45ACA5009C5E7E /* PrivacyAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */; };
 		551456992B47E399009C5E7E /* MenubarCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551456982B47E399009C5E7E /* MenubarCommands.swift */; };
 		551918F22AF393C200B93430 /* SideBarPluginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551918F12AF393C200B93430 /* SideBarPluginView.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyAlertView.swift; sourceTree = "<group>"; };
 		551456982B47E399009C5E7E /* MenubarCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarCommands.swift; sourceTree = "<group>"; };
 		551918F12AF393C200B93430 /* SideBarPluginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarPluginView.swift; sourceTree = "<group>"; };
@@ -80,7 +82,7 @@
 		55A410482ADDB5D500996105 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		55A4104B2ADDBA4200996105 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		55A4104E2ADDBD4A00996105 /* InitialSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSettingsView.swift; sourceTree = "<group>"; };
-		55B438292A6FE25A00E2A9DD /* MockingStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MockingStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55B438292A6FE25A00E2A9DD /* BoynerMockingStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoynerMockingStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55B4382C2A6FE25A00E2A9DD /* MockingStarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockingStarApp.swift; sourceTree = "<group>"; };
 		55B438302A6FE25D00E2A9DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		55B438332A6FE25D00E2A9DD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -132,6 +134,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A8EE3BC2BE4D93100F9B893 /* ci_scripts */ = {
+			isa = PBXGroup;
+			children = (
+				4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */,
+			);
+			path = ci_scripts;
+			sourceTree = "<group>";
+		};
 		5514564C2B45AC3A009C5E7E /* PrivacyAlert */ = {
 			isa = PBXGroup;
 			children = (
@@ -212,6 +222,7 @@
 		55B438202A6FE25A00E2A9DD = {
 			isa = PBXGroup;
 			children = (
+				4A8EE3BC2BE4D93100F9B893 /* ci_scripts */,
 				55B4382B2A6FE25A00E2A9DD /* MockingStar */,
 				55B4383D2A6FE25D00E2A9DD /* MockingStarTests */,
 				55B438472A6FE25D00E2A9DD /* MockingStarUITests */,
@@ -223,7 +234,7 @@
 		55B4382A2A6FE25A00E2A9DD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				55B438292A6FE25A00E2A9DD /* MockingStar.app */,
+				55B438292A6FE25A00E2A9DD /* BoynerMockingStar.app */,
 				55B4383A2A6FE25D00E2A9DD /* MockingStarTests.xctest */,
 				55B438442A6FE25D00E2A9DD /* MockingStarUITests.xctest */,
 			);
@@ -344,7 +355,7 @@
 				5557F2822B074166008957B1 /* PluginCore */,
 			);
 			productName = MockingStar;
-			productReference = 55B438292A6FE25A00E2A9DD /* MockingStar.app */;
+			productReference = 55B438292A6FE25A00E2A9DD /* BoynerMockingStar.app */;
 			productType = "com.apple.product-type.application";
 		};
 		55B438392A6FE25D00E2A9DD /* MockingStarTests */ = {
@@ -437,6 +448,7 @@
 			files = (
 				55B438342A6FE25D00E2A9DD /* Preview Assets.xcassets in Resources */,
 				55B438312A6FE25D00E2A9DD /* Assets.xcassets in Resources */,
+				4A8EE3BE2BE4D97A00F9B893 /* ci_post_clone.sh in Resources */,
 				5553085A2B000B8A0001C0CC /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -666,7 +678,7 @@
 				MARKETING_VERSION = 1.0.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "tr.com.boyner.mocking-star";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BoynerMockingStar;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
@@ -704,7 +716,7 @@
 				MARKETING_VERSION = 1.0.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "tr.com.boyner.mocking-star";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BoynerMockingStar;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
