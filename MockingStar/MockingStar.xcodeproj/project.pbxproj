@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4A8EE3BE2BE4D97A00F9B893 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */; };
 		5514564E2B45ACA5009C5E7E /* PrivacyAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */; };
 		551456992B47E399009C5E7E /* MenubarCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551456982B47E399009C5E7E /* MenubarCommands.swift */; };
 		551918F22AF393C200B93430 /* SideBarPluginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551918F12AF393C200B93430 /* SideBarPluginView.swift */; };
@@ -63,7 +62,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyAlertView.swift; sourceTree = "<group>"; };
 		551456982B47E399009C5E7E /* MenubarCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarCommands.swift; sourceTree = "<group>"; };
 		551918F12AF393C200B93430 /* SideBarPluginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarPluginView.swift; sourceTree = "<group>"; };
@@ -134,14 +132,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4A8EE3BC2BE4D93100F9B893 /* ci_scripts */ = {
-			isa = PBXGroup;
-			children = (
-				4A8EE3BD2BE4D97A00F9B893 /* ci_post_clone.sh */,
-			);
-			path = ci_scripts;
-			sourceTree = "<group>";
-		};
 		5514564C2B45AC3A009C5E7E /* PrivacyAlert */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,7 +212,6 @@
 		55B438202A6FE25A00E2A9DD = {
 			isa = PBXGroup;
 			children = (
-				4A8EE3BC2BE4D93100F9B893 /* ci_scripts */,
 				55B4382B2A6FE25A00E2A9DD /* MockingStar */,
 				55B4383D2A6FE25D00E2A9DD /* MockingStarTests */,
 				55B438472A6FE25D00E2A9DD /* MockingStarUITests */,
@@ -448,7 +437,6 @@
 			files = (
 				55B438342A6FE25D00E2A9DD /* Preview Assets.xcassets in Resources */,
 				55B438312A6FE25D00E2A9DD /* Assets.xcassets in Resources */,
-				4A8EE3BE2BE4D97A00F9B893 /* ci_post_clone.sh in Resources */,
 				5553085A2B000B8A0001C0CC /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -48,6 +48,13 @@
          location = "group:PluginConfigs">
       </FileRef>
    </Group>
+   <Group
+      location = "group:ci_scripts"
+      name = "ci_scripts">
+      <FileRef
+         location = "group:ci_post_clone.sh">
+      </FileRef>
+   </Group>
    <FileRef
       location = "group:TestPlan.xctestplan">
    </FileRef>
