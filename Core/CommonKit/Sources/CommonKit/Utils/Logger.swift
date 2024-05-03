@@ -84,7 +84,7 @@ public final class Logger {
 
     public init(category: String) {
         self.category = category
-        logger = .init(subsystem: "com.trendyol.MockingStar", category: category)
+        logger = .init(subsystem: "tr.com.boyner.MockingStar", category: category)
     }
 
     public func debug(_ message: String) {
@@ -143,7 +143,7 @@ public final class ServerLogger: Logging {
 
     public init() {
         category = "Server"
-        logger = .init(subsystem: "com.trendyol.MockingStar", category: "Server")
+        logger = .init(subsystem: "tr.com.boyner.MockingStar", category: "Server")
     }
 
     public func logDebug(_ debug: String) {
