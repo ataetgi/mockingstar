@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "55B438282A6FE25A00E2A9DD"
-               BuildableName = "MockingStar.app"
+               BuildableName = "BoynerMockingStar.app"
                BlueprintName = "MockingStar"
                ReferencedContainer = "container:MockingStar.xcodeproj">
             </BuildableReference>
@@ -181,7 +181,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "55B438282A6FE25A00E2A9DD"
-            BuildableName = "MockingStar.app"
+            BuildableName = "BoynerMockingStar.app"
             BlueprintName = "MockingStar"
             ReferencedContainer = "container:MockingStar.xcodeproj">
          </BuildableReference>
@@ -198,7 +198,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "55B438282A6FE25A00E2A9DD"
-            BuildableName = "MockingStar.app"
+            BuildableName = "BoynerMockingStar.app"
             BlueprintName = "MockingStar"
             ReferencedContainer = "container:MockingStar.xcodeproj">
          </BuildableReference>
