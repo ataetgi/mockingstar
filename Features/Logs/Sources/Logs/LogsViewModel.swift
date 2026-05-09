@@ -12,9 +12,21 @@ import SwiftUI
 @Observable
 final class LogsViewModel {
     private var allLogs: [LogModel] = []
-    private var clearedLogs: [LogModel] = []
     private(set) var filteredLogs: [LogModel] = []
-    var filterType: Set<LogSeverity> = [.critical, .error, .fault, .warning]
+
+    @ObservationIgnored
+    var filterType: Set<LogSeverity> {
+        get {
+            access(keyPath: \.filterType)
+            @UserDefaultStorage("logsFilterType") var filters: Set<LogSeverity> = [.critical, .error, .fault, .warning]
+            return filters
+        } set {
+            withMutation(keyPath: \.filterType) {
+                @UserDefaultStorage("logsFilterType") var filters: Set<LogSeverity> = []
+                filters = newValue
+            }
+        }
+    }
     var searchTerm: String = ""
     private let logStreamHandler: LogStreamHandlerInterface
 
@@ -29,24 +41,36 @@ final class LogsViewModel {
 
         for await log in logStreamHandler.stream() {
             allLogs.append(log)
-            filterLogs()
+            withAnimation {
+                if filter(log) { filteredLogs.append(log) }
+            }
+        }
+    }
+
+    @MainActor
+    func filterLogs() {
+        withAnimation {
+            filteredLogs = allLogs.filter(filter(_:)).suffix(1000)
         }
     }
 
     /// Filters the logs based on the current search term and filter type.
     @MainActor
-    func filterLogs() {
-        withAnimation {
-            if searchTerm.isEmpty {
-                filteredLogs = allLogs.filter { filterType.contains($0.severity) && !clearedLogs.contains($0) }.suffix(1000)
-            } else {
-                filteredLogs = allLogs.filter { $0.message.lowercased().contains(searchTerm.lowercased()) && filterType.contains($0.severity) && !clearedLogs.contains($0) }.suffix(1000)
+    private func filter(_ log: LogModel) -> Bool {
+        if searchTerm.isEmpty {
+            if filterType.contains(log.severity) { return true }
+        } else {
+            if filterType.contains(log.severity),
+               log.message.localizedLowercase.contains(searchTerm.localizedLowercase) || log.metadata.values.map(\.localizedLowercase).contains(searchTerm.localizedLowercase) {
+                return true
             }
         }
+
+        return false
     }
 
     @MainActor func clearLogs() {
-        clearedLogs.append(contentsOf: filteredLogs)
+        allLogs.removeAll()
         filterLogs()
     }
 }

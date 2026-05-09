@@ -7,7 +7,7 @@
 
 import CommonKit
 import CommonViewsKit
-import JSONEditor
+import Editor
 import MockingStarCore
 import SwiftUI
 import TipKit
@@ -19,6 +19,7 @@ public struct MockDetailView: View {
     @AppStorage("SelectedShareStyle") private var shareStyle: ShareStyle = .curl
     @Environment(NavigationStore.self) private var navigationStore: NavigationStore
     @Environment(MockDomainDiscover.self) private var domainDiscover: MockDomainDiscover
+    @FocusState private var isEditorFocused: Bool
     private let inspectorViewModel: MockDetailInspectorViewModel
 
     public init(viewModel: MockDetailViewModel) {
@@ -30,16 +31,18 @@ public struct MockDetailView: View {
         VStack(spacing: .zero) {
             MockDetailEditorTypeButton(selectedEditorType: $viewModel.selectedEditorType)
             JsonEditorCache.shared.editor
+                .focused($isEditorFocused)
         }
         .navigationTitle(viewModel.mockModel.metaData.url.path())
         .toolbar {
             ToolbarItemGroup(placement: .navigation) {
-                if viewModel.jsonValidationMessage != nil {
-                    Label("JSON Validation Error", systemImage: "text.badge.xmark")
+                if viewModel.editorValidationMessage != nil {
+                    Label("Content Validation Error", systemImage: "text.badge.xmark")
                         .foregroundStyle(Color.red)
-                        .help(viewModel.jsonValidationMessage ?? "")
+                        .help(viewModel.editorValidationMessage ?? "")
                 }
             }
+            .disableSharedBackground()
 
             ToolbarItemGroup {
                 ToolBarButton(title: "Reload Mock", icon: "arrow.clockwise", backgroundColor: .gray) {
@@ -68,6 +71,7 @@ public struct MockDetailView: View {
                 }
                 .keyboardShortcut("s")
             }
+            .disableSharedBackground()
 
             ToolbarItem {
                 ControlGroup {
@@ -79,16 +83,26 @@ public struct MockDetailView: View {
 
                     Menu("Duplicate...") {
                         Button {
-                            Task { await viewModel.duplicateMock() }
+                            Task {
+                                await viewModel.newMock(mockDomain: viewModel.mockDomain, shouldMove: false)
+                            }
                         } label: {
                             Label("Duplicate Mock", systemImage: "doc.on.doc.fill")
                         }
                     }
 
                     Menu("Copy to...") {
+                        Button("Clipboard") {
+                            viewModel.shareButtonTapped(shareStyle: .file)
+                        }
+
+                        Divider()
+
                         ForEach(domainDiscover.domains.filter { $0 != viewModel.mockDomain }, id: \.self) { mockDomain in
                             Button(mockDomain) {
-                                Task { await viewModel.copyMock(to: mockDomain) }
+                                Task {
+                                    await viewModel.newMock(mockDomain: mockDomain, shouldMove: false)
+                                }
                             }
                         }
                     }
@@ -97,7 +111,7 @@ public struct MockDetailView: View {
                         ForEach(domainDiscover.domains.filter { $0 != viewModel.mockDomain }, id: \.self) { mockDomain in
                             Button(mockDomain) {
                                 Task {
-                                    await viewModel.moveMock(to: mockDomain)
+                                    await viewModel.newMock(mockDomain: mockDomain, shouldMove: true)
                                 }
                             }
                         }
@@ -107,6 +121,7 @@ public struct MockDetailView: View {
                 }
                 .controlGroupStyle(.compactMenu)
             }
+            .disableSharedBackground()
 
             ToolbarItem {
                 Button {
@@ -115,16 +130,17 @@ public struct MockDetailView: View {
                     Label("Hide Inspector", systemImage: "sidebar.trailing")
                 }
             }
+            .disableSharedBackground()
         }
         .confirmationDialog("Mock Will be Deleted, Are you sure", isPresented: $viewModel.shouldShowDeleteConfirmationAlert) {
             Button("Delete", role: .destructive, action: { viewModel.removeMock() })
             Button("Cancel", role: .cancel, action: { })
         }
-        .alert("Error", isPresented: $viewModel.shouldShowSaveErrorAlert, actions: {
-            Button("Discard Changes", role: .destructive, action: { viewModel.discardChanges() })
+        .alert(viewModel.alertMessage, isPresented: $viewModel.shouldShowAlert, actions: {
+            if let action = viewModel.alertAction {
+                Button(viewModel.alertActionTitle) { action() }
+            }
             Button("Cancel", role: .cancel, action: { })
-        }, message: {
-            Text(viewModel.saveErrorMessage)
         })
         .alert("Warning", isPresented: $viewModel.shouldShowFilePathErrorAlert, actions: {
             Button("Fix File Path", role: .destructive, action: { viewModel.fixFilePath() })
@@ -139,16 +155,15 @@ public struct MockDetailView: View {
         .navigationDestination(isPresented: $shouldShowMockReloadView) {
             MockReloadView(viewModel: .init(mockModel: viewModel.mockModel, mockDomain: viewModel.mockDomain))
         }
-        .onChange(of: viewModel.shouldDismissView) { _, _ in
-            guard viewModel.shouldDismissView else { return }
-            withAnimation { dismiss() }
-        }
-        .task(id: viewModel.mockModel.responseBody) { viewModel.jsonEditorModelTypeChanged() }
-        .task(id: viewModel.mockModel.responseHeader) { viewModel.jsonEditorModelTypeChanged() }
+        .onChange(of: viewModel.shouldDismissView) { dismissIfNeeded() }
+        .onChange(of: viewModel.shouldShowAlert) { dismissIfNeeded() }
+        .task(id: viewModel.mockModel.responseBody) { viewModel.editorModelTypeChanged() }
+        .task(id: viewModel.mockModel.responseHeader) { viewModel.editorModelTypeChanged() }
         .task(id: viewModel.mockModel.metaData) { viewModel.checkUnsavedChanges() }
         .task { viewModel.checkFilePath() }
         .background(.background)
-        .modifier(ChangeConfirmationViewModifier(hasChange: $viewModel.shouldShowUnsavedIndicator) {
+        .modifier(ChangeConfirmationViewModifier(hasChange: $viewModel.shouldShowUnsavedIndicator,
+                                                 backNavigationShortcutDisabled: .init(get: { isEditorFocused }, set: { _ in })) {
             viewModel.saveChanges()
         })
         .onReceive(NotificationCenter.default.publisher(for: .removeMock)) { _ in
@@ -156,8 +171,9 @@ public struct MockDetailView: View {
         }
     }
 
-    func dismiss() {
-        navigationStore.pop()
+    func dismissIfNeeded() {
+        guard viewModel.shouldDismissView && !viewModel.shouldShowAlert else { return }
+        withAnimation { navigationStore.pop() }
     }
 }
 

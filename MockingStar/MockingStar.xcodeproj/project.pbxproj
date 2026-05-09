@@ -9,12 +9,13 @@
 /* Begin PBXBuildFile section */
 		5514564E2B45ACA5009C5E7E /* PrivacyAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */; };
 		551456992B47E399009C5E7E /* MenubarCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551456982B47E399009C5E7E /* MenubarCommands.swift */; };
+		5518C44A2D9743EF006B36E5 /* MockTraceScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5518C4492D9743EF006B36E5 /* MockTraceScene.swift */; };
 		551918F22AF393C200B93430 /* SideBarPluginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551918F12AF393C200B93430 /* SideBarPluginView.swift */; };
 		551918F42AF393CF00B93430 /* SideBarPluginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551918F32AF393CF00B93430 /* SideBarPluginViewModel.swift */; };
 		551CF1AC2B725FB800AF91C7 /* QuickDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551CF1AB2B725FB800AF91C7 /* QuickDemo.swift */; };
+		553661142E269F33001E6A08 /* Editor in Frameworks */ = {isa = PBXBuildFile; productRef = 553661132E269F33001E6A08 /* Editor */; };
 		5553085A2B000B8A0001C0CC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 555308592B000B8A0001C0CC /* Localizable.xcstrings */; };
 		5557F2712B074077008957B1 /* DiffEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 5557F2702B074077008957B1 /* DiffEditor */; };
-		5557F2732B074077008957B1 /* JSONEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 5557F2722B074077008957B1 /* JSONEditor */; };
 		5557F2752B074077008957B1 /* Logs in Frameworks */ = {isa = PBXBuildFile; productRef = 5557F2742B074077008957B1 /* Logs */; };
 		5557F2772B074077008957B1 /* MockDetail in Frameworks */ = {isa = PBXBuildFile; productRef = 5557F2762B074077008957B1 /* MockDetail */; };
 		5557F2792B074077008957B1 /* MockDomainConfigs in Frameworks */ = {isa = PBXBuildFile; productRef = 5557F2782B074077008957B1 /* MockDomainConfigs */; };
@@ -42,6 +43,7 @@
 		55D1755D2ABC2C3C00DD3C8F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D1755C2ABC2C3C00DD3C8F /* SidebarView.swift */; };
 		55D1755F2ABC2C7C00DD3C8F /* AppNavigationSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D1755E2ABC2C7C00DD3C8F /* AppNavigationSplitView.swift */; };
 		55D175632ABC2D6600DD3C8F /* InitializeAppOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55D175622ABC2D6600DD3C8F /* InitializeAppOnboardingView.swift */; };
+		55F9FD9B2D949F9F0056B557 /* SideBarWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F9FD9A2D949F9F0056B557 /* SideBarWorkspaceView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +66,7 @@
 /* Begin PBXFileReference section */
 		5514564D2B45ACA5009C5E7E /* PrivacyAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyAlertView.swift; sourceTree = "<group>"; };
 		551456982B47E399009C5E7E /* MenubarCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarCommands.swift; sourceTree = "<group>"; };
+		5518C4492D9743EF006B36E5 /* MockTraceScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTraceScene.swift; sourceTree = "<group>"; };
 		551918F12AF393C200B93430 /* SideBarPluginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarPluginView.swift; sourceTree = "<group>"; };
 		551918F32AF393CF00B93430 /* SideBarPluginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarPluginViewModel.swift; sourceTree = "<group>"; };
 		551CF1AB2B725FB800AF91C7 /* QuickDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDemo.swift; sourceTree = "<group>"; };
@@ -95,6 +98,7 @@
 		55D1755E2ABC2C7C00DD3C8F /* AppNavigationSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigationSplitView.swift; sourceTree = "<group>"; };
 		55D175622ABC2D6600DD3C8F /* InitializeAppOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitializeAppOnboardingView.swift; sourceTree = "<group>"; };
 		55F477BE2A7131AD004A76E4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		55F9FD9A2D949F9F0056B557 /* SideBarWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBarWorkspaceView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,10 +111,10 @@
 				5557F2712B074077008957B1 /* DiffEditor in Frameworks */,
 				5557F27B2B074078008957B1 /* MockingStarCore in Frameworks */,
 				5557F2752B074077008957B1 /* Logs in Frameworks */,
-				5557F2732B074077008957B1 /* JSONEditor in Frameworks */,
 				5557F27F2B074157008957B1 /* MockList in Frameworks */,
 				5557F2812B074166008957B1 /* PluginConfigs in Frameworks */,
 				5557F2832B074166008957B1 /* PluginCore in Frameworks */,
+				553661142E269F33001E6A08 /* Editor in Frameworks */,
 				5557F2772B074077008957B1 /* MockDetail in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -238,6 +242,7 @@
 				5599FF902B6BD7560095E1BE /* MockingStarDebug.entitlements */,
 				55BD7EDE2AF7C365008C5C14 /* Info.plist */,
 				55B4382C2A6FE25A00E2A9DD /* MockingStarApp.swift */,
+				5518C4492D9743EF006B36E5 /* MockTraceScene.swift */,
 				55B438302A6FE25D00E2A9DD /* Assets.xcassets */,
 				555308592B000B8A0001C0CC /* Localizable.xcstrings */,
 				55D9F3D12AB47CFE0056C002 /* Modules */,
@@ -283,6 +288,7 @@
 		55D175592ABC2C0500DD3C8F /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				55F9FD972D949F810056B557 /* SideBarWorkspaceView */,
 				551918F02AF393A900B93430 /* SideBarPluginsView */,
 				55907DE92AC5907E00857AD1 /* SideBarServerView */,
 				55D1755C2ABC2C3C00DD3C8F /* SidebarView.swift */,
@@ -315,6 +321,14 @@
 			path = Modules;
 			sourceTree = "<group>";
 		};
+		55F9FD972D949F810056B557 /* SideBarWorkspaceView */ = {
+			isa = PBXGroup;
+			children = (
+				55F9FD9A2D949F9F0056B557 /* SideBarWorkspaceView.swift */,
+			);
+			path = SideBarWorkspaceView;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -333,7 +347,6 @@
 			name = MockingStar;
 			packageProductDependencies = (
 				5557F2702B074077008957B1 /* DiffEditor */,
-				5557F2722B074077008957B1 /* JSONEditor */,
 				5557F2742B074077008957B1 /* Logs */,
 				5557F2762B074077008957B1 /* MockDetail */,
 				5557F2782B074077008957B1 /* MockDomainConfigs */,
@@ -342,6 +355,7 @@
 				5557F27E2B074157008957B1 /* MockList */,
 				5557F2802B074166008957B1 /* PluginConfigs */,
 				5557F2822B074166008957B1 /* PluginCore */,
+				553661132E269F33001E6A08 /* Editor */,
 			);
 			productName = MockingStar;
 			productReference = 55B438292A6FE25A00E2A9DD /* BoynerMockingStar.app */;
@@ -391,7 +405,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					55B438282A6FE25A00E2A9DD = {
 						CreatedOnToolsVersion = 15.0;
@@ -469,10 +483,12 @@
 				55B4382D2A6FE25A00E2A9DD /* MockingStarApp.swift in Sources */,
 				55A4104C2ADDBA4200996105 /* WelcomeView.swift in Sources */,
 				55D1755D2ABC2C3C00DD3C8F /* SidebarView.swift in Sources */,
+				55F9FD9B2D949F9F0056B557 /* SideBarWorkspaceView.swift in Sources */,
 				551918F22AF393C200B93430 /* SideBarPluginView.swift in Sources */,
 				55907DEB2AC5909200857AD1 /* SideBarServerView.swift in Sources */,
 				5514564E2B45ACA5009C5E7E /* PrivacyAlertView.swift in Sources */,
 				55A410402ADD58DF00996105 /* SettingsViewModel.swift in Sources */,
+				5518C44A2D9743EF006B36E5 /* MockTraceScene.swift in Sources */,
 				55A4104F2ADDBD4A00996105 /* InitialSettingsView.swift in Sources */,
 				55D1755F2ABC2C7C00DD3C8F /* AppNavigationSplitView.swift in Sources */,
 				55907DED2AC590A900857AD1 /* SideBarServerViewModel.swift in Sources */,
@@ -716,7 +732,6 @@
 		55B438522A6FE25D00E2A9DD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -738,7 +753,6 @@
 		55B438532A6FE25D00E2A9DD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
@@ -762,7 +776,6 @@
 		55B438552A6FE25D00E2A9DD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
@@ -782,7 +795,6 @@
 		55B438562A6FE25D00E2A9DD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
@@ -844,13 +856,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		553661132E269F33001E6A08 /* Editor */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Editor;
+		};
 		5557F2702B074077008957B1 /* DiffEditor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DiffEditor;
-		};
-		5557F2722B074077008957B1 /* JSONEditor */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = JSONEditor;
 		};
 		5557F2742B074077008957B1 /* Logs */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -6,17 +6,21 @@
 //
 
 import CommonKit
-import SwiftUI
+import CommonViewsKit
 import MockingStarCore
+import SwiftUI
 
 @Observable
 public final class MockListViewModel {
     private let logger = Logger(category: "MockListViewModel")
     private let fileManager: FileManagerInterface
     private let mockDiscover: MockDiscoverInterface
+    private let notificationManager: NotificationManagerInterface
+    private let pasteBoard: NSPasteboardInterface
 
     private var listSortTask: Task<(), Never>? = nil
     private var reloadMocksTask: Task<(), Never>? = nil
+    private var mockDomain: String = ""
     var sortOrder = [KeyPathComparator(\MockModel.metaData.updateTime, order: .forward)]
     var filterType: FilterType = .all
     var filterStyle: FilterStyle = .contains
@@ -38,9 +42,13 @@ public final class MockListViewModel {
     private(set) var mockListUIModel: [MockModel] = []
 
     public init(fileManager: FileManagerInterface = FileManager.default,
-                mockDiscover: MockDiscoverInterface = MockDiscover()) {
+                mockDiscover: MockDiscoverInterface = MockDiscover(),
+                notificationManager: NotificationManagerInterface = NotificationManager.shared,
+                pasteBoard: NSPasteboardInterface = NSPasteboard.general) {
         self.fileManager = fileManager
         self.mockDiscover = mockDiscover
+        self.notificationManager = notificationManager
+        self.pasteBoard = pasteBoard
         listenMockDiscover()
     }
 
@@ -54,6 +62,7 @@ public final class MockListViewModel {
                 case .result(let mocks):
                     isLoading = false
                     mockModelList = mocks
+                    executeDeeplink()
                 }
             }
         }
@@ -101,6 +110,13 @@ public final class MockListViewModel {
 
             try Task.checkCancellation()
 
+            /// Find selected mocks, remove them if they are not included in the new UI list.
+            selected
+                .filter { id in !filteredMocks.contains(where: { $0.id == id }) }
+                .forEach { selected.remove($0) }
+
+            try Task.checkCancellation()
+
             try await MainActor.run {
                 try Task.checkCancellation()
                 mockListUIModel = filteredMocks.sorted(using: sortOrder)
@@ -130,9 +146,10 @@ public final class MockListViewModel {
     }
     
     @MainActor
-    func mockDomainChanged(_ domain: String) async {
+    func mockDomainChanged(_ mockDomain: String) async {
         do {
-            try await mockDiscover.updateMockDomain(domain)
+            self.mockDomain = mockDomain
+            try await mockDiscover.updateMockDomain(mockDomain)
         } catch {
             guard !(error is CancellationError) else { return }
             logger.error("Mock Domain Changed Error: \(error)")
@@ -148,6 +165,47 @@ public final class MockListViewModel {
                 guard !(error is CancellationError) else { return }
                 logger.error("Mocks Reload Error: \(error)")
             }
+        }
+    }
+
+    func shareButtonTapped(shareStyle: ShareStyle) {
+        let mocks: [MockModel] =  selected.compactMap { mock(id: $0) }
+
+        switch shareStyle {
+        case .curl:
+            let curlList = mocks.map(\.asURLRequest).map { $0.cURL(pretty: true) }
+            pasteBoard.clearContents()
+            pasteBoard.setString(curlList.joined(separator: "\n\n"), forType: .string)
+        case .file:
+            guard let mockModel = mocks.first else { return notificationManager.show(title: "File share only available for one mock", color: .red) }
+            do {
+                let data = try JSONEncoder.shared.encode(mockModel)
+                guard let content = String(data: data, encoding: .utf8) else {
+                    return notificationManager.show(title: "Failed to encode mock", color: .red)
+                }
+                pasteBoard.clearContents()
+                pasteBoard.setString(content, forType: .string)
+            } catch {
+                notificationManager.show(title: "Failed to encode mock", color: .red)
+            }
+        }
+        notificationManager.show(title: "Request copied to clipboard", color: .green)
+    }
+
+    func executeDeeplink() {
+        guard let deeplink = DeeplinkStore.shared.deeplinks.last else { return }
+
+        switch deeplink {
+        case .openMock(let id, let mockDomain) where self.mockDomain == mockDomain:
+            if let mock = mockModelList.first(where: { $0.id == id }) {
+                selected = [mock.id]
+                DeeplinkStore.shared.deeplinks.removeLast()
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    NavigationStore.shared.open(.mock(mock))
+                }
+            }
+        default: break
         }
     }
 }

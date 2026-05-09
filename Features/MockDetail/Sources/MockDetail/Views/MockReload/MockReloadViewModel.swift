@@ -91,10 +91,11 @@ final class MockReloadViewModel {
     func reloadMock() async {
         isMockReloadingProgress = true
 
+        let request = (showUpdatedRequest ? updatedRequest() : mockModel.asURLRequest).recalculateContentLength()
         let result: (Data, URLResponse)
 
         do {
-            result = try await urlSession.data(for: showUpdatedRequest ? updatedRequest() : mockModel.asURLRequest)
+            result = try await urlSession.data(for: request)
         } catch {
             print("Error: \(error)")
             isMockReloadingProgress = false
@@ -132,6 +133,17 @@ final class MockReloadViewModel {
             let curl = mockModel.asURLRequest.cURL(pretty: true)
             pasteBoard.clearContents()
             pasteBoard.setString(curl, forType: .string)
+        case .file:
+            do {
+                let data = try JSONEncoder.shared.encode(mockModel)
+                guard let content = String(data: data, encoding: .utf8) else {
+                    return notificationManager.show(title: "Failed to encode mock", color: .red)
+                }
+                pasteBoard.clearContents()
+                pasteBoard.setString(content, forType: .string)
+            } catch {
+                notificationManager.show(title: "Failed to encode mock", color: .red)
+            }
         }
         notificationManager.show(title: "Request copied to clipboard", color: .green)
     }

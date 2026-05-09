@@ -13,13 +13,23 @@ import TipKit
 
 struct SidebarView: View {
     @Environment(MockDomainDiscover.self) private var domainDiscover: MockDomainDiscover
-    @SceneStorage("mockDomain") private var mockDomain: String = ""
+    @AppStorage("mockDomain") private var mockDomain: String = ""
+    @SceneStorage("isConfigsExpanded") private var isConfigsExpanded: Bool = true
+    private let navigationStore = NavigationStore.shared
+    @StateObject private var pluginViewModel = SideBarPluginViewModel()
     private let logger = Logger(category: "SidebarView")
 
     var body: some View {
         List {
             Section("Servers") {
                 SideBarServerView()
+                SideBarWorkspaceView()
+            }
+
+            if #available(macOS 15.0, *) {
+                if !Bundle.main.bundlePath.contains("/Application/") {
+                    TipView(MoveApplicationTip())
+                }
             }
 
             Section("App") {
@@ -28,7 +38,7 @@ struct SidebarView: View {
                         NavigationStore.shared.path.removeAll()
                     }
 
-                DisclosureGroup {
+                DisclosureGroup(isExpanded: $isConfigsExpanded) {
                     SideBarConfigsView(title: "Path Configs", isSelected: NavigationStore.shared.path.last == .configs_pathConfigs)
                         .onTapGesture { NavigationStore.shared.path.append(.configs_pathConfigs) }
                     SideBarConfigsView(title: "Query Configs", isSelected: NavigationStore.shared.path.last == .configs_queryConfigs)
@@ -54,7 +64,7 @@ struct SidebarView: View {
                 }
             }
 
-            SideBarPluginView()
+            SideBarPluginView(viewModel: pluginViewModel)
             TipView(QuickDemoTip())
             Spacer()
             TipView(MenubarItemsTip())
@@ -63,6 +73,10 @@ struct SidebarView: View {
         .task { try? await reloadMockDomains() }
         .onReceive(NotificationCenter.default.publisher(for: .reloadMockDomains)) { _ in
             Task { try await reloadMockDomains() }
+        }
+        .task(id: mockDomain) {
+            try? await Task.sleep(for: .milliseconds(100))
+            navigationStore.popToRoot()
         }
     }
 
@@ -97,9 +111,10 @@ struct SideBarMockDomainView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .background(isHovering ? Color.accentColor.opacity(0.5) : Color.clear)
-        .clipShape(.rect(cornerRadius: 10))
+        .clipShape(.rect(cornerRadius: 6))
         .onHover { isHovering in
             withAnimation { self.isHovering = isHovering }
         }
@@ -114,9 +129,10 @@ struct SideBarConfigsView: View {
     var body: some View {
         Text(title)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .background(isSelected ? Color.accentColor : isHovering ? Color.accentColor.opacity(0.5) : Color.clear)
-            .clipShape(.rect(cornerRadius: 10))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(isHovering ? Color.accentColor.opacity(0.5) : Color.clear)
+            .clipShape(.rect(cornerRadius: 6))
             .onHover { isHovering in
                 withAnimation { self.isHovering = isHovering }
             }
@@ -170,4 +186,21 @@ struct BugReport: Tip {
     var image: Image? {
         Image(systemName: "ladybug.fill")
     }
+}
+
+@available(macOS 15.0, *)
+struct MoveApplicationTip: Tip {
+    var title: Text = Text("Please move Mocking Star to Applications folder")
+
+    var actions: [Action] {
+        Action(title: "Show in Finder") {
+            NSWorkspace.shared.selectFile(Bundle.main.bundlePath,
+                                          inFileViewerRootedAtPath: Bundle.main.bundleURL.deletingLastPathComponent().path())
+        }
+    }
+
+    var options: [any TipOption] = [
+        MaxDisplayDuration(20),
+        MaxDisplayCount(100)
+    ]
 }

@@ -29,7 +29,6 @@ public final class MockDiscover: MockDiscoverInterface {
     private let fileUrlBuilder: FileUrlBuilderInterface
     private var mocks: Set<MockModel> = []
     private var fileStructureMonitor: FileStructureMonitorInterface
-    @UserDefaultStorage("mockFolderFilePath") var mocksFolderPath: String = "/MockServer"
 
     public init(fileManager: FileManagerInterface = FileManager.default,
                 fileUrlBuilder: FileUrlBuilderInterface = FileUrlBuilder(),
@@ -38,13 +37,6 @@ public final class MockDiscover: MockDiscoverInterface {
         self.fileUrlBuilder = fileUrlBuilder
         self.fileStructureMonitor = fileStructureMonitor
         (mockDiscoverResult, mockDiscoverResultContinuation) = AsyncStream<MockDiscoverResult>.makeStream()
-
-        _mocksFolderPath.onChange { [weak self] _ in
-            guard let self else { return }
-
-            mocks.removeAll()
-            mockDiscoverResultContinuation.yield(.loading)
-        }
     }
 
     /// Updates the mock domain and initiates the process of discovering and monitoring mock changes.
@@ -108,11 +100,10 @@ public final class MockDiscover: MockDiscoverInterface {
             for mockAvailableFolder in mockAvailableFolders {
                 try Task.checkCancellation()
 
-                taskGroup.addTask {
-                    [weak self] in
+                taskGroup.addTask { [weak self] in
                     guard let self else { return [] }
                     try Task.checkCancellation()
-                    return try loadMocks(url: mockAvailableFolder)
+                    return try await loadMocks(url: mockAvailableFolder)
                 }
             }
 
@@ -136,11 +127,32 @@ public final class MockDiscover: MockDiscoverInterface {
     /// - Parameter url: The URL of the folder containing mock files.
     /// - Returns: An array of loaded `MockModel` instances.
     /// - Throws: If any error occurs during the loading process, it is thrown.
-    private func loadMocks(url: URL) throws -> [MockModel] {
-        try fileManager
+    private func loadMocks(url: URL) async throws -> [MockModel] {
+        let folderContent = try fileManager
             .folderContent(at: url)
             .filter { !$0.hasDirectoryPath }
-            .map { try loadMock(fileURL: $0)}
+
+        return await withTaskGroup(of: MockModel?.self, returning: [MockModel].self) { taskGroup in
+            for url in folderContent {
+                taskGroup.addTask { [weak self] in
+                    guard let self else { return nil }
+                    do {
+                        return try loadMock(fileURL: url)
+                    } catch {
+                        logger.error("Loading mock failed - \(url.path()): \(error)")
+                        return nil
+                    }
+                }
+            }
+
+            var mocks: [MockModel] = []
+
+            for await result in taskGroup {
+                guard let result else { continue }
+                mocks.append(result)
+            }
+            return mocks
+        }
     }
 
     /// Loads a mock from the specified file URL.
@@ -149,7 +161,7 @@ public final class MockDiscover: MockDiscoverInterface {
     /// - Returns: The loaded `MockModel`.
     /// - Throws: If any error occurs during the loading process, it is thrown.
     private func loadMock(fileURL: URL) throws -> MockModel {
-        let mock: MockModel = try mocks.first(where: { $0.fileURL == fileURL }) ?? (fileManager.readJSONFile(at: fileURL))
+        let mock: MockModel = try mocks.first(where: { $0.fileURL == fileURL }) ?? (fileManager.readJSONFile(at: fileURL, userInfo: [.lazyDecoding: true]))
         mock.fileURL = fileURL
         return mock
     }

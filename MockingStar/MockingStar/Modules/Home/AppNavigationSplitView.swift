@@ -16,16 +16,16 @@ import PluginConfigs
 import SwiftUI
 
 struct AppNavigationSplitView: View {
-    @State private var initializeAppOnboardingDone: Bool = false
     @Bindable private var navigationStore = NavigationStore.shared
-    @SceneStorage("mockDomain") var mockDomain: String = ""
+    @AppStorage("mockDomain") var mockDomain: String = ""
     @AppStorage("isOnboardingDone") private var isOnboardingDone: Bool = false
-    @UserDefaultStorage("mockFolderFilePath") var mockFolderFilePath: String = "/MockServer"
     private let mockListViewModel = MockListViewModel()
+    private let onboardingCompleted = OnboardingCompleted.shared
+    private let deeplinkStore = DeeplinkStore.shared
 
     var body: some View {
         Group {
-            if initializeAppOnboardingDone && isOnboardingDone {
+            if onboardingCompleted.completed && isOnboardingDone {
                 NavigationSplitView {
                     SidebarView()
                         .frame(minWidth: 280)
@@ -46,10 +46,10 @@ struct AppNavigationSplitView: View {
                                     MockHeaderConfigurations(viewModel: .init())
                                 case .pluginConfiguration(let plugin):
                                     PluginConfigView(plugin: plugin)
-                                case .appSettings:
-                                    SettingsView()
                                 case .logs:
                                     LogsView()
+                                case .fileIntegrityCheck:
+                                    FileIntegrityCheckView()
                                 }
                             }
                     }
@@ -57,15 +57,15 @@ struct AppNavigationSplitView: View {
             } else if !isOnboardingDone {
                 OnboardingView()
             } else {
-                InitializeAppOnboardingView {
-                    initializeAppOnboardingDone = true
-                }
+                InitializeAppOnboardingView()
             }
         }
         .overlay { NotificationView() }
-        .onAppear {
-            _mockFolderFilePath.onChange { path in
-                initializeAppOnboardingDone = false
+        .onChange(of: deeplinkStore.deeplinks) {
+            switch deeplinkStore.deeplinks.last {
+            case .openMock(_, let mockDomain) where self.mockDomain != mockDomain:
+                self.mockDomain = mockDomain
+            default: break
             }
         }
     }

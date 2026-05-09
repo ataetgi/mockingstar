@@ -7,20 +7,17 @@
 
 import CommonKit
 import CommonViewsKit
-import JSONEditor
+import Editor
+import Logs
 import MockingStarCore
 import SwiftUI
 import TipKit
 
 @main
 struct MockingStarApp: App {
+    @AppStorage("resetTipKitOnNextLaunch") private var resetTipKitOnNextLaunch = false
 
-    init() {
-        try? Tips.configure([
-            .datastoreLocation(.applicationDefault),
-        ])
-    }
-
+    
     var body: some Scene {
         WindowGroup {
             AppNavigationSplitView()
@@ -29,22 +26,33 @@ struct MockingStarApp: App {
                 .environment(NotificationManager.shared)
                 .task {
                     await MainActor.run {
-                        JSONEditorView.warmUp()
+                        EditorView.warmUp()
                     }
+                }
+                .task {
+                    if resetTipKitOnNextLaunch {
+                        try? Tips.resetDatastore()
+                        resetTipKitOnNextLaunch = false
+                    }
+                    
+                    try? Tips.configure([.datastoreLocation(.applicationDefault)])
                 }
         }
         .defaultSize(width: (NSScreen.main?.visibleFrame.size.width ?? 1000) / 1.5, height: (NSScreen.main?.visibleFrame.size.height ?? 600) / 1.5)
         .commands {
             SidebarCommands()
             MenubarCommands()
+            MockTraceWindowCommand()
         }
 
         Window("Mocking Star Playground", id: "quick-demo") {
             QuickDemo()
         }
 
+        MockTraceScene()
+
         Settings {
-            SettingsView()
+            SettingsView(updater: updaterController.updater)
         }
     }
 }

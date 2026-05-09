@@ -10,14 +10,11 @@ import CommonViewsKit
 import SwiftUI
 
 struct SideBarPluginView: View {
-    private let viewModel = SideBarPluginViewModel.shared
-    @State private var lastMockFolderFilePath: String = ""
-    @SceneStorage("mockDomain") private var mockDomain: String = ""
-    @UserDefaultStorage("mockFolderFilePath") var mockFolderFilePath: String = "/MockServer"
+    private let viewModel: SideBarPluginViewModel
+    @AppStorage("mockDomain") private var mockDomain: String = ""
 
-    init() {
-        lastMockFolderFilePath = mockFolderFilePath
-        listenMockFolderPathChanges()
+    init(viewModel: SideBarPluginViewModel) {
+        self.viewModel = viewModel
     }
 
     var body: some View {
@@ -30,18 +27,14 @@ struct SideBarPluginView: View {
             }
         }
         .task(id: mockDomain) { await viewModel.loadPlugins(for: mockDomain) }
-        .task(id: lastMockFolderFilePath) { await viewModel.loadPlugins(for: mockDomain) }
-    }
-
-    func listenMockFolderPathChanges() {
-        _mockFolderFilePath.onChange { path in
-           lastMockFolderFilePath = path
+        .onReceive(NotificationCenter.default.publisher(for: .workspacesUpdated)) { _ in
+            Task { await viewModel.loadPlugins(for: mockDomain) }
         }
     }
 }
 
 #Preview {
-    SideBarPluginView()
+    SideBarPluginView(viewModel: SideBarPluginViewModel())
 }
 
 struct SideBarPluginItemView: View {
@@ -51,9 +44,10 @@ struct SideBarPluginItemView: View {
     var body: some View {
         Text(title)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(isHovering ? Color.accentColor.opacity(0.5) : Color.clear)
-            .clipShape(.rect(cornerRadius: 10))
+            .clipShape(.rect(cornerRadius: 6))
             .onHover { isHovering in
                 withAnimation { self.isHovering = isHovering }
             }

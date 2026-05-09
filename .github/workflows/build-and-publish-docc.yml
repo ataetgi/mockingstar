@@ -7,13 +7,13 @@ on:
 jobs:
   test:
     name: 'Build and Publish DocC'
-    runs-on: macOS
+    runs-on: macos-26
     permissions:
       contents: write
 
     steps:
     - name: Check out Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Build DocC
       run: |

@@ -9,12 +9,12 @@ import CommonViewsKit
 import SwiftUI
 
 struct SideBarServerView: View {
-    private let viewModel = SideBarServerViewModel.shared
+    private static var viewModel = SideBarServerViewModel()
 
     var body: some View {
         VStack {
-            ForEach(viewModel.serversUIModel) { server in
-                ServerView(server: server, viewModel: viewModel)
+            ForEach(Self.viewModel.serversUIModel) { server in
+                ServerView(server: server, viewModel: Self.viewModel)
             }
         }
     }

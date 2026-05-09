@@ -1,0 +1,36 @@
+//
+//  MockTraceOverlayViewModel.swift
+//  MockList
+//
+//  Created by Yusuf Özgül on 28.03.2025.
+//
+
+import Foundation
+import CommonKit
+import SwiftUI
+
+@Observable
+public final class MockTraceOverlayViewModel {
+    private let logStreamHandler: LogStreamHandlerInterface
+    private(set) var logs: [LogModel] = []
+
+    public init(logStreamHandler: LogStreamHandlerInterface = LogStreamHandler.shared) {
+        self.logStreamHandler = logStreamHandler
+    }
+
+    @MainActor
+    func readLogs() async {
+        logs = logStreamHandler.readAllLogs()
+            .filter { $0.message == "Mock Trace" }
+
+        for await log in logStreamHandler.stream() {
+            withAnimation {
+                if log.message == "Mock Trace" { logs.append(log) }
+            }
+        }
+    }
+
+    func clearLogs() {
+        logs.removeAll()
+    }
+}

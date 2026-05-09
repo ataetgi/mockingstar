@@ -54,8 +54,8 @@ public final class ConfigModel: Codable, Equatable {
 ///
 /// ```json
 /// {
-///     "executeAllHeaders" : false,
-///     "executeAllQueries" : true,
+///     "headerExecuteStyle" : "ignoreAll",
+///     "queryExecuteStyle" : "matchAll",
 ///     "path" : "productDetail/v2/102030/return-conditions"
 ///  }
 /// ```
@@ -70,8 +70,8 @@ public final class ConfigModel: Codable, Equatable {
 /// Or
 /// ```json
 /// {
-///     "executeAllHeaders" : false,
-///     "executeAllQueries" : true,
+///     "headerExecuteStyle" : "ignoreAll",
+///     "queryExecuteStyle" : "matchAll",
 ///     "path" : "productDetail/v2/*/return-conditions"
 ///  }
 /// ```
@@ -86,28 +86,63 @@ public final class ConfigModel: Codable, Equatable {
 ///
 ///> Path Matching Ratio: Whenever Mock configurations expect path, it shouldn't be exact path, ``appFilterConfigs.pathMatchingRatio`` determines path matching ratio.
 public final class PathConfigModel: Codable, Equatable, Identifiable, Hashable {
-    public var id: String { path + executeAllHeaders.description + executeAllQueries.description }
+    public var id: String { path + queryExecuteStyle.rawValue + headerExecuteStyle.rawValue }
 
     public var path: String
-    public var executeAllQueries: Bool
-    public var executeAllHeaders: Bool
+    public var queryExecuteStyle: QueryExecuteStyle
+    public var headerExecuteStyle: HeaderExecuteStyle
 
-    public init(path: String, executeAllQueries: Bool, executeAllHeaders: Bool) {
+    public init(path: String, queryExecuteStyle: QueryExecuteStyle, headerExecuteStyle: HeaderExecuteStyle) {
         self.path = path
-        self.executeAllQueries = executeAllQueries
-        self.executeAllHeaders = executeAllHeaders
+        self.queryExecuteStyle = queryExecuteStyle
+        self.headerExecuteStyle = headerExecuteStyle
     }
 
     public static func == (lhs: PathConfigModel, rhs: PathConfigModel) -> Bool {
         lhs.path == rhs.path &&
-        lhs.executeAllHeaders == rhs.executeAllHeaders &&
-        lhs.executeAllQueries == rhs.executeAllQueries
+        lhs.queryExecuteStyle == rhs.queryExecuteStyle &&
+        lhs.headerExecuteStyle == rhs.headerExecuteStyle
     }
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(path)
-        hasher.combine(executeAllQueries)
-        hasher.combine(executeAllHeaders)
+        hasher.combine(queryExecuteStyle)
+        hasher.combine(headerExecuteStyle)
+    }
+    
+    private enum CodingKeys: CodingKey {
+        case path
+        case queryExecuteStyle
+        case headerExecuteStyle
+    }
+
+    private enum Migration_CodingKeys: CodingKey {
+        case executeAllQueries
+        case executeAllHeaders
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container: KeyedDecodingContainer<PathConfigModel.CodingKeys> = try decoder.container(keyedBy: PathConfigModel.CodingKeys.self)
+        
+        self.path = try container.decode(String.self, forKey: PathConfigModel.CodingKeys.path)
+
+        do {
+            self.queryExecuteStyle = try container.decode(QueryExecuteStyle.self, forKey: PathConfigModel.CodingKeys.queryExecuteStyle)
+        } catch {
+            // Migrate matchAllQueries to QueryExecuteStyle
+            let container = try decoder.container(keyedBy: PathConfigModel.Migration_CodingKeys.self)
+            let executeAllQueries = (try? container.decode(Bool.self, forKey: PathConfigModel.Migration_CodingKeys.executeAllQueries)) ?? false
+            self.queryExecuteStyle = executeAllQueries ? .matchAll : .ignoreAll
+        }
+
+        do {
+            self.headerExecuteStyle = try container.decode(HeaderExecuteStyle.self, forKey: PathConfigModel.CodingKeys.headerExecuteStyle)
+        } catch {
+            // Migrate matchAllHeaders to QueryExecuteStyle
+            let container = try decoder.container(keyedBy: PathConfigModel.Migration_CodingKeys.self)
+            let executeAllHeaders = (try? container.decode(Bool.self, forKey: PathConfigModel.Migration_CodingKeys.executeAllHeaders)) ?? false
+            self.headerExecuteStyle = executeAllHeaders ? .matchAll : .ignoreAll
+        }
     }
 }
 
@@ -253,9 +288,9 @@ public final class HeaderConfigModel: Codable, Equatable, Identifiable, Hashable
 /// ```json
 ///{
 ///      "inputText" : "product",
-///      "isActive" : true,
 ///      "selectedFilter" : "contains",
-///      "selectedLocation" : "path"
+///      "selectedLocation" : "path",
+///      "logicType": "or"
 ///}
 /// ```
 /// Based on given config model, 
@@ -266,33 +301,42 @@ public final class HeaderConfigModel: Codable, Equatable, Identifiable, Hashable
 public final class MockFilterConfigModel: Codable, Equatable, Identifiable, Hashable {
     public var id: String = UUID().uuidString
 
-    public var isActive: Bool
     public var selectedLocation: FilterType
     public var selectedFilter: FilterStyle
     public var inputText: String
+    public var logicType: FilterLogicType
 
-    public init(isActive: Bool = true,
-                selectedLocation: FilterType = .all,
+    public init(selectedLocation: FilterType = .all,
                 selectedFilter: FilterStyle = .contains,
-                inputText: String) {
-        self.isActive = isActive
+                inputText: String,
+                logicType: FilterLogicType = .or) {
         self.selectedLocation = selectedLocation
         self.selectedFilter = selectedFilter
         self.inputText = inputText
+        self.logicType = logicType
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.selectedLocation = try container.decode(FilterType.self, forKey: .selectedLocation)
+        self.selectedFilter = try container.decode(FilterStyle.self, forKey: .selectedFilter)
+        self.inputText = try container.decode(String.self, forKey: .inputText)
+        self.logicType = (try? container.decode(FilterLogicType.self, forKey: .logicType)) ?? .or
     }
 
     public static func == (lhs: MockFilterConfigModel, rhs: MockFilterConfigModel) -> Bool {
-        lhs.isActive == rhs.isActive &&
         lhs.selectedLocation == rhs.selectedLocation &&
         lhs.selectedFilter == rhs.selectedFilter &&
-        lhs.inputText == rhs.inputText
+        lhs.inputText == rhs.inputText &&
+        lhs.logicType == rhs.logicType
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(isActive)
         hasher.combine(selectedLocation)
         hasher.combine(selectedFilter)
         hasher.combine(inputText)
+        hasher.combine(logicType)
     }
 }
 
@@ -331,27 +375,127 @@ public enum FilterStyle: String, Codable, CaseIterable {
     }
 }
 
-/// App Configs determines base settings about MockingStar
-public final class AppConfigModel: Codable, Equatable {
-    public var queryFilterDefaultStyleIgnore: Bool
-    public var headerFilterDefaultStyleIgnore: Bool
-    public var domains: [String]
-    public var pathMatchingRatio: Double
+public enum FilterLogicType: String, Codable, CaseIterable {
+    case and = "and"
+    case or = "or"
+    case mock = "mock"
+    case doNotMock = "doNotMock"
+    
+    public var title: String {
+        switch self {
+        case .and: "AND"
+        case .or: "OR"
+        case .mock: "Mock"
+        case .doNotMock: "Do Not Mock"
+        }
+    }
+    
+    public var isOperator: Bool {
+        switch self {
+        case .and, .or: true
+        case .mock, .doNotMock: false
+        }
+    }
+    
+    public var isAction: Bool {
+        switch self {
+        case .and, .or: false
+        case .mock, .doNotMock: true
+        }
+    }
+}
 
-    public init(queryFilterDefaultStyleIgnore: Bool = true,
-                headerFilterDefaultStyleIgnore: Bool = true,
-                domains: [String] = [],
-                pathMatchingRatio: Double = 1) {
-        self.queryFilterDefaultStyleIgnore = queryFilterDefaultStyleIgnore
-        self.headerFilterDefaultStyleIgnore = headerFilterDefaultStyleIgnore
-        self.domains = domains
+/// App Configs determines base settings about MockingStar
+/// Common mock configurations.
+///
+/// ```json
+/// {
+///     "domains" : ["trendyol.com"],
+///     "headerExecuteStyle" : "ignoreAll",
+///     "queryExecuteStyle" : "matchAll",
+///     "pathMatchingRatio" : 0.8
+/// }
+/// ```
+public final class AppConfigModel: Codable, Equatable {
+    public var queryExecuteStyle: QueryExecuteStyle
+    public var headerExecuteStyle: HeaderExecuteStyle
+    public var pathMatchingRatio: Double
+    public var domains: [String]
+
+    public init(queryExecuteStyle: QueryExecuteStyle = .ignoreAll,
+                headerExecuteStyle: HeaderExecuteStyle = .ignoreAll,
+                pathMatchingRatio: Double = 1,
+                domains: [String] = []) {
+        self.queryExecuteStyle = queryExecuteStyle
+        self.headerExecuteStyle = headerExecuteStyle
         self.pathMatchingRatio = pathMatchingRatio
+        self.domains = domains
     }
 
     public static func == (lhs: AppConfigModel, rhs: AppConfigModel) -> Bool {
-        lhs.queryFilterDefaultStyleIgnore == rhs.queryFilterDefaultStyleIgnore &&
-        lhs.headerFilterDefaultStyleIgnore == rhs.headerFilterDefaultStyleIgnore &&
-        lhs.domains == rhs.domains &&
-        lhs.pathMatchingRatio == rhs.pathMatchingRatio
+        lhs.queryExecuteStyle == rhs.queryExecuteStyle &&
+        lhs.headerExecuteStyle == rhs.headerExecuteStyle &&
+        lhs.pathMatchingRatio == rhs.pathMatchingRatio &&
+        lhs.domains == rhs.domains
+    }
+    
+    private enum CodingKeys: CodingKey {
+        case queryExecuteStyle
+        case headerExecuteStyle
+        case pathMatchingRatio
+        case domains
+    }
+
+    private enum Migration_CodingKeys: CodingKey {
+        case queryFilterDefaultStyleIgnore
+        case headerFilterDefaultStyleIgnore
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: AppConfigModel.CodingKeys.self)
+
+        do {
+            self.queryExecuteStyle = try container.decode(QueryExecuteStyle.self, forKey: AppConfigModel.CodingKeys.queryExecuteStyle)
+        } catch {
+            // Migrate queryFilterDefaultStyleIgnore to QueryExecuteStyle
+            let container = try decoder.container(keyedBy: AppConfigModel.Migration_CodingKeys.self)
+            let queryFilterDefaultStyleIgnore = try container.decode(Bool.self, forKey: AppConfigModel.Migration_CodingKeys.queryFilterDefaultStyleIgnore)
+            self.queryExecuteStyle = queryFilterDefaultStyleIgnore ? .ignoreAll : .matchAll
+        }
+
+        do {
+            self.headerExecuteStyle = try container.decode(HeaderExecuteStyle.self, forKey: AppConfigModel.CodingKeys.headerExecuteStyle)
+        } catch {
+            // Migrate headerFilterDefaultStyleIgnore to QueryExecuteStyle
+            let container = try decoder.container(keyedBy: AppConfigModel.Migration_CodingKeys.self)
+            let headerFilterDefaultStyleIgnore = try container.decode(Bool.self, forKey: AppConfigModel.Migration_CodingKeys.headerFilterDefaultStyleIgnore)
+            self.headerExecuteStyle = headerFilterDefaultStyleIgnore ? .ignoreAll : .matchAll
+        }
+        self.pathMatchingRatio = try container.decode(Double.self, forKey: AppConfigModel.CodingKeys.pathMatchingRatio)
+        self.domains = try container.decode([String].self, forKey: AppConfigModel.CodingKeys.domains)
+    }
+}
+
+public enum QueryExecuteStyle: String, Codable, CaseIterable {
+    case ignoreAll
+    case matchAll
+
+    public var title: String {
+        switch self {
+        case .ignoreAll: "Ignore All Query Items"
+        case .matchAll: "Match All Query Items"
+        }
+    }
+}
+
+public enum HeaderExecuteStyle: String, Codable, CaseIterable {
+    case ignoreAll
+    case matchAll
+
+    public var title: String {
+        switch self {
+        case .ignoreAll: "Ignore All Header Items"
+        case .matchAll: "Match All Header Items"
+        }
     }
 }

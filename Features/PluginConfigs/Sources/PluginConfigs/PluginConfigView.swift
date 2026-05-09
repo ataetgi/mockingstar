@@ -11,7 +11,7 @@ import SwiftUI
 public struct PluginConfigView: View {
     private let plugin: String
     @Bindable private var viewModel: PluginConfigViewModel
-    @SceneStorage("mockDomain") private var mockDomain: String = ""
+    @AppStorage("mockDomain") private var mockDomain: String = ""
 
     public init(plugin: String) {
         self.plugin = plugin
@@ -25,6 +25,7 @@ public struct PluginConfigView: View {
             }
 
             Spacer()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -41,6 +42,7 @@ public struct PluginConfigView: View {
                 }
                 .keyboardShortcut("s")
             }
+            .disableSharedBackground()
         }
         .task(id: mockDomain) {  await viewModel.loadPlugins(for: mockDomain)}
         .task(id: viewModel.pluginConfigs) { viewModel.checkChanges() }

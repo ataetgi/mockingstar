@@ -10,13 +10,16 @@
     "App" : {
 
     },
+    "Automatically check for updates" : {
+
+    },
+    "Automatically download updates" : {
+
+    },
     "Bug Report" : {
 
     },
-    "Change Path" : {
-
-    },
-    "Check" : {
+    "Check for Updates…" : {
 
     },
     "Continue" : {
@@ -40,13 +43,22 @@
     "Mock Domains" : {
 
     },
+    "Mock Trace" : {
+
+    },
+    "Mocking Star couldn't start successfully. Please check Workspaces." : {
+
+    },
+    "Mocking Star encountered a problem while starting. You can try resetting the app to fix the problem." : {
+
+    },
     "Mocking Star Playground" : {
 
     },
     "MockingStar" : {
 
     },
-    "Mocks Folder" : {
+    "Please move Mocking Star to Applications folder" : {
 
     },
     "Plugins" : {
@@ -59,6 +71,9 @@
 
     },
     "Reload All Plugins" : {
+
+    },
+    "Reset Mocking Star" : {
 
     },
     "Reset Tips" : {
@@ -89,7 +104,13 @@
     "Servers" : {
 
     },
+    "Settings" : {
+
+    },
     "Source Code" : {
+
+    },
+    "Start Diagnostic" : {
 
     },
     "Test Mocking Star without client." : {
@@ -111,6 +132,15 @@
 
     },
     "Working" : {
+
+    },
+    "workspace" : {
+
+    },
+    "Workspace Name" : {
+
+    },
+    "Workspaces" : {
 
     }
   },

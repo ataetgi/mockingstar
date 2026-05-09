@@ -27,6 +27,14 @@ public extension Notification.Name {
     static var reloadMockDomains: Notification.Name {
         .init("RELOAD_MOCK_DOMAINS_NOTIFICATION")
     }
+
+    static var fileIntegrityCheck: Notification.Name {
+        .init("FILE_INTEGRITY_CHECK_NOTIFICATION")
+    }
+
+    static var workspacesUpdated: Notification.Name {
+        .init("WORKSPACES_UPDATES")
+    }
 }
 
 public extension Notification {
@@ -48,5 +56,13 @@ public extension Notification {
 
     static var reloadMockDomains: Notification {
         .init(name: .reloadMockDomains)
+    }
+
+    static var fileIntegrityCheck: Notification {
+        .init(name: .fileIntegrityCheck)
+    }
+
+    static var workspacesUpdated: Notification {
+        .init(name: .workspacesUpdated)
     }
 }

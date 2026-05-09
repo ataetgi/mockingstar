@@ -22,13 +22,15 @@ public final class LogStreamHandler: LogHandler, LogStreamHandlerInterface {
     private let jsonDecoder = JSONDecoder()
 
     private init() {
-        fileURL = URL.cachesDirectory.appending(component: "logs.json")
+        fileURL = URL.cachesDirectory.appending(component: "mockingstarlogs.json")
     }
 
     public func log(level: Logging.Logger.Level, message: Logging.Logger.Message, metadata: Logging.Logger.Metadata?, source: String, file: String, function: String, line: UInt) {
+        let metadata: [String:String] = (metadata?.map { ($0, $1.description)} ?? []).reduce(into: [:]) { $0[$1.0] = $1.1 }
         let logModel = LogModel(severity: .severity(from: level),
                                 message: "\(message)",
-                                category: category)
+                                category: metadata["category"] ?? "",
+                                metadata: metadata)
         logContinuation?.yield(logModel)
     }
 
@@ -39,7 +41,7 @@ public final class LogStreamHandler: LogHandler, LogStreamHandlerInterface {
         }
         let data = ("["+fileContent+"]").data(using: .utf8) ?? .init()
 
-        return (try? jsonDecoder.decode([LogModel].self, from: data)) ?? []
+        return (try? jsonDecoder.decode([LogModel].self, from: data))?.suffix(1000) ?? []
     }
 
     public func stream() -> AsyncStream<LogModel> {

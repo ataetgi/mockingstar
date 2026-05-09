@@ -18,6 +18,7 @@ let package = Package(
         .package(path: "../../Core/CommonKit"),
         .package(path: "../../Core/CommonViewsKit"),
         .package(path: "../../Core/MockingStarCore"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
     ],
     targets: [
         .target(
@@ -26,6 +27,7 @@ let package = Package(
                 "CommonKit",
                 "CommonViewsKit",
                 "MockingStarCore",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]),
         .testTarget(
             name: "MockListTests",
@@ -33,6 +35,7 @@ let package = Package(
                 "MockList",
                 .product(name: "MockingStarCoreTestSupport", package: "MockingStarCore"),
                 .product(name: "CommonKitTestSupport", package: "CommonKit"),
+                .product(name: "CommonViewsKitTestSupport", package: "CommonViewsKit"),
             ]),
     ]
 )

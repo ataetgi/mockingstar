@@ -81,7 +81,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -118,7 +117,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -155,7 +153,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -168,10 +165,10 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: false)]
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .ignoreAll
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=10&useNewDesign=false&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -194,12 +191,9 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "true"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .useMock(mock: mock))
@@ -207,11 +201,13 @@ final class MockDeciderTests: XCTestCase {
 
     func test_decideMock_QueryDefaultIgnore_WithQueryConfig() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
+        fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "id"), .init(key: "gender", value: "F")]
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .ignoreAll
+        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "userId")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?userId=1&device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -234,12 +230,10 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "true"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "userId", value: "1"),
+                                                                           .init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .useMock(mock: mock))
@@ -247,13 +241,13 @@ final class MockDeciderTests: XCTestCase {
 
     func test_decideMock_QueryDefaultIgnore_WithQueryConfig_NotMatched() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
-        fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "id"), .init(key: "gender", value: "F")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: false, executeAllHeaders: false)]
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
+        fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .ignoreAll
+        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "userId", value: "1")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?userId=1&device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -276,12 +270,10 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "false"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "userId", value: "2"),
+                                                                           .init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .mockNotFound)
@@ -289,11 +281,13 @@ final class MockDeciderTests: XCTestCase {
 
     func test_decideMock_QueryDefaultIgnore_WithoutQueryConfig() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
+        fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .ignoreAll
         configsBuilder.stubbedFindProperQueryConfigsResult = []
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -316,12 +310,9 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "true"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .useMock(mock: mock))
@@ -329,11 +320,13 @@ final class MockDeciderTests: XCTestCase {
 
     func test_decideMock_QueryDefaultNotIgnore_WithQueryConfig() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
+        fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = false
-        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "useNewDesign", value: "true")]
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .matchAll
+        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "device")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .matchAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -356,12 +349,9 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "true"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .useMock(mock: mock))
@@ -369,13 +359,13 @@ final class MockDeciderTests: XCTestCase {
 
     func test_decideMock_QueryDefaultNotIgnore_WithQueryConfig_NotMatched() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
-        fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = false
-        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "useNewDesign", value: "true"), .init(key: "id")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: false, executeAllHeaders: false)]
+        fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
+        configs.stubbedConfigs.appFilterConfigs.queryExecuteStyle = .matchAll
+        configsBuilder.stubbedFindProperQueryConfigsResult = [.init(key: "device", value: "ios")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .matchAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us?device=ios"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -398,12 +388,9 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
-        let result = try await decider.decideMock(request: request(query: [.init(name: "id", value: "10"),
-                                                                           .init(name: "useNewDesign", value: "true"),
-                                                                           .init(name: "gender", value: "F"),]),
+        let result = try await decider.decideMock(request: request(query: [.init(name: "device", value: "android")]),
                                                   flags: flags)
 
         XCTAssertEqual(result, .mockNotFound)
@@ -413,11 +400,10 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = true
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: true)]
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .ignoreAll
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=10&useNewDesign=false&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -427,11 +413,11 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "iPhone",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -445,12 +431,11 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "device": "android",
+            "version": "1.2.2"
         ]),
                                                   flags: flags)
 
@@ -461,12 +446,11 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = true
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "version"), .init(key: "platform", value: "iPhone")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: false)]
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .ignoreAll
+        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "userId")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -476,11 +460,12 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "iPhone",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "userId": "1",
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -494,12 +479,12 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "userId": "1",
+            "device": "android",
+            "version": "1.2.2"
         ]),
                                                   flags: flags)
 
@@ -510,12 +495,11 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = true
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .ignoreAll
         configsBuilder.stubbedFindProperHeaderConfigsResult = []
-        configsBuilder.stubbedFindProperPathConfigsResult = []
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .ignoreAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -525,11 +509,11 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "android",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -543,12 +527,11 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "device": "android",
+            "version": "1.2.2"
         ]),
                                                   flags: flags)
 
@@ -559,12 +542,11 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = false
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "platform", value: "iPhone")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: true)]
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .matchAll
+        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "device")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .matchAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -574,11 +556,11 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "iPhone",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -592,12 +574,11 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "device": "android",
+            "version": "1.2.3"
         ]),
                                                   flags: flags)
 
@@ -608,12 +589,11 @@ final class MockDeciderTests: XCTestCase {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = false
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "platform")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: true)]
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .matchAll
+        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "device", value: "ios")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .matchAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -623,11 +603,11 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "iPhone",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -641,28 +621,26 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "device": "android",
+            "version": "1.2.2"
         ]),
                                                   flags: flags)
 
-        XCTAssertEqual(result, .useMock(mock: mock))
+        XCTAssertEqual(result, .mockNotFound)
     }
 
     func test_decideMock_HeaderDefaultNotIgnore_WithHeaderConfig_NotMatched() async throws {
         fileUrlBuilder.stubbedMockListFolderUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileUrlBuilder.stubbedMockListConfiguredUrlResult = URL(string: "stubbedMocksFolderUrlResult")
         fileManager.stubbedFolderContentResult = [URL(string: "stubbedMocksFolderUrlResult")].compactMap { $0 }
-        configs.stubbedConfigs.appFilterConfigs.headerFilterDefaultStyleIgnore = true
-        configs.stubbedConfigs.appFilterConfigs.queryFilterDefaultStyleIgnore = true
-        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "platform")]
-        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/aboutus", executeAllQueries: true, executeAllHeaders: false)]
+        configs.stubbedConfigs.appFilterConfigs.headerExecuteStyle = .matchAll
+        configsBuilder.stubbedFindProperHeaderConfigsResult = [.init(key: "device", value: "ios")]
+        configsBuilder.stubbedFindProperPathConfigsResult = [.init(path: "/about-us", queryExecuteStyle: .ignoreAll, headerExecuteStyle: .matchAll)]
 
-        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/aboutus?id=20&useNewDesign=true&gender=F"))
+        let url = try XCTUnwrap(URL(string: "https://www.trendyol.com/about-us"))
         let mock = MockModel(metaData: .init(url: url,
                                              method: "GET",
                                              appendTime: .init(),
@@ -672,11 +650,11 @@ final class MockDeciderTests: XCTestCase {
                                              scenario: "",
                                              id: "9271C0BE-9326-443F-97B8-1ECA29571FC3"),
                              requestHeader: """
-                             {
-                                "platform": "iPhone",
-                                "version": "1.2.3",
-                             }
-                             """,
+                           {
+                              "device": "ios",
+                              "version": "1.2.3"
+                           }
+                           """,
                              responseHeader: "{}",
                              requestBody: .init(""),
                              responseBody: .init(""))
@@ -690,12 +668,11 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(headers: [
-            "platform": "iPhone",
-            "version": "1.2.2",
+            "device": "android",
+            "version": "1.2.2"
         ]),
                                                   flags: flags)
 
@@ -713,7 +690,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -751,7 +727,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -789,7 +764,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.decideMock(request: request(),
@@ -826,7 +800,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.searchMock(path: "/aboutus",
@@ -864,7 +837,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "EmptyResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.searchMock(path: "/aboutus",
@@ -900,7 +872,6 @@ final class MockDeciderTests: XCTestCase {
 
         let flags: MockServerFlags = .init(mockSource: .default,
                                            scenario: "ErrorResponse",
-                                           shouldNotMock: false,
                                            domain: "Dev",
                                            deviceId: "")
         let result = try await decider.searchMock(path: "/aboutus",
