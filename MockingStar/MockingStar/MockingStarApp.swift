@@ -52,7 +52,7 @@ struct MockingStarApp: App {
         MockTraceScene()
 
         Settings {
-            SettingsView(updater: updaterController.updater)
+            SettingsView()
         }
     }
 }
