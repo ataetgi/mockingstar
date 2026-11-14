@@ -1,0 +1,11 @@
+# Security scans required by the group's merge request approval policy
+# (SAST, Dependency Scanning, Secret Detection). Without these results the
+# policy blocks every MR into protected branches until manually approved.
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.v2.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+variables:
+  # Run the scans in merge request pipelines too, so the policy can evaluate MRs.
+  AST_ENABLE_MR_PIPELINES: "true"
